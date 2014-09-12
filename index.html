@@ -1,0 +1,381 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    
+    <head>
+        <title>Hit target V5</title>
+
+        <style type="text/css">
+
+            body {
+                margin:0px;
+                padding:0px;
+
+                -moz-user-select: -moz-none;
+                -khtml-user-select: none;
+                -webkit-user-select: none;
+            }
+
+            #gameholder{
+                position:relative;
+                left:0px;
+                top:0px;  
+            }
+
+
+            #targetarea {
+                background-color: black;
+                position:absolute;
+                left:0px;
+                top:0px;
+                z-index:0;
+                height:100%;
+                width:100%;
+            }
+
+            #titlescreen {
+                background-color: blue;
+                position:absolute;
+                left:0px;
+                top:0px;
+                height:100%;
+                width:100%;
+                z-index:30;
+            }
+
+            #startscreen {
+                position:absolute;
+                left:0px;
+                top:0px;
+                height:100%;
+                width:100%;
+                z-index:28;
+            }
+
+           #startmessage{
+                background-color: #000000;
+                position:relative;
+                top:25%;
+                left:25%;
+                height:50%;
+                width:50%;
+                color:#ffffff;
+
+            }
+
+            #endscreen {
+                background-color: #c6c6c6;
+                position:absolute;
+                left:-9990px;
+                top:0px;
+                height:100%;
+                width:100%;
+                z-index:29;
+            }
+
+            #endmessage{
+                background-color: #000000;
+                position:relative;
+                top:25%;
+                left:25%;
+                height:50%;
+                width:50%;
+                color:#ffffff;
+
+            }
+
+             #passscreen {
+                background-color: #yellow;
+                position:absolute;
+                left:-9990px;
+                top:0px;
+                height:100%;
+                width:100%;
+                z-index:32;
+            }
+
+
+            #passmessage{
+                background-color: #000000;
+                position:relative;
+                top:25%;
+                left:25%;
+                height:50%;
+                width:50%;
+                color:#ffffff;
+
+            }
+
+
+
+            #target {
+                position:absolute;
+                left:0px;
+                top:0px;
+                width:200px;
+                height:200px;
+                z-index:10;
+            }
+
+            #timernumber {
+                background-color: #c2c2c2;
+                position:absolute;
+                left:0px;
+                top:0px;
+                width:50px;
+                height:50px;
+            }
+
+            #score {
+                background-color: #a2a2a2;
+                position:absolute;
+                left:200px;
+                top:0px;
+                width:50px;
+                height:50px;
+            }
+
+            #level {
+                background-color: #a2a2a2;
+                position:absolute;
+                left:100px;
+                top:0px;
+                width:50px;
+                height:50px;
+            }
+            
+        </style>
+
+
+
+<script type="text/javascript" src="jquery-1.11.0.min.js"></script>
+
+
+    </head>
+    
+    <body>
+
+<div id="gameholder">
+
+<div id="titlescreen" onMouseDown="startgame()" >
+TITLE SCREEN AREA
+<br />
+</div>
+
+<div id="startscreen" onMouseDown="starttimer()" >
+<div id="startmessage">START MESSAGE</div>
+<br />
+</div>
+
+<div id="passscreen" onMouseDown="starttimer()" >
+<div id="passmessage">PASSED LEVEL</div>
+<br />
+</div>
+
+
+<div id="endscreen" onMouseDown="restart()" >
+<div id="endmessage">END OF GAME</div>
+</div>
+
+
+
+<div id="targetarea" onClick="missed()">
+<div id="timernumber">000000</div> 
+<div id="score">00</div> 
+<div id="level">00</div> 
+
+</div>
+
+<div="redtarget">
+<img src="red1.png" onMouseDown="changer()" id="target">
+</div>
+
+
+<!-- end of gameholder
+ --></div>
+
+<script type="text/javascript">
+
+//test jquery
+$("#startscreen").css("background-color","green");
+
+var gamerunning;
+var timerspeed = 200;
+var ghits = 0;
+var glevel = 1;
+var gscore = 0;
+var timernumber = 100;
+var gameheight=600;
+var gamewidth= 860;
+var pathtotarget = document.getElementById("target")
+var targetsize = 200;
+audioElement = document.createElement('audio');
+audioElement.setAttribute('src', 'gun1.mp3');
+document.getElementById("gameholder").style.width = (gamewidth + "px");
+document.getElementById("gameholder").style.height = (gameheight + "px");
+//function to play firing sound
+function playsound(){
+// audioElement.play();
+// var audio = new Audio();
+// audio.src = ("gun1.mp3");
+// audio.play();
+}
+
+
+function startgame(){
+clearscreens();
+document.getElementById("startscreen").style.left = ("0px");
+
+//reset time variable
+timernumber = 100;
+//reset target start position - random
+rnumber=Math.floor(Math.random()*(gamewidth-targetsize));
+rnumber2=Math.floor(Math.random()*(gameheight-targetsize));
+pathtotarget.style.left = (rnumber + "px");
+pathtotarget.style.top = (rnumber2 +"px");
+
+}
+
+//start button blocking game and waiting to start timer
+function starttimer(){
+clearscreens();
+document.getElementById("targetarea").style.left = ("0px");
+//after set time stop game
+gamerunning = setInterval(function(){
+  timedown();
+},timerspeed); //TIMER SPEED
+}
+
+function timedown(){
+timernumber = timernumber-1;
+document.getElementById("timernumber").innerHTML = timernumber;
+if(timernumber<=0){
+endgame("out of time");
+}
+
+}
+
+
+function endgame(message){
+endmess = ("End of game!!!!! " + message + "score = " + gscore);
+document.getElementById("endmessage").innerHTML = endmess;
+//reset variables
+targetsize = 200;
+pathtotarget.style.height = (targetsize + "px");
+pathtotarget.style.width = (targetsize +"px");
+rnumber=Math.floor(Math.random()*(gamewidth-targetsize));
+rnumber2=Math.floor(Math.random()*(gameheight-targetsize));
+pathtotarget.style.left = (rnumber + "px");
+pathtotarget.style.top = (rnumber2 +"px");
+ghits = 0;
+glevel = 1;
+gscore = 0;
+timerspeed = 200;
+clearInterval(gamerunning);
+// alert("End of game!!!!! " + message + "score = " + gscore);
+clearscreens();
+document.getElementById("endscreen").style.left = ("0px");
+}
+
+function restart(){
+document.getElementById("endscreen").style.left = ("-9990px");
+document.getElementById("startscreen").style.left = ("-9990px");
+document.getElementById("titlescreen").style.left = ("0px");
+}
+
+function passscreen(){
+clearscreens();
+document.getElementById("passscreen").style.left = ("0px");
+passmess = ("PASSED LEVEL!!!!! " + glevel + "score = " + gscore);
+document.getElementById("passmessage").innerHTML = passmess;
+// alert("level number = " + glevel + " Complete. Score = " + gscore);
+glevel += 1;
+updates();
+clearInterval(gamerunning);
+ghits= 0;
+//reset time variable & speed
+timernumber = 100;
+timerspeed -= 10 ;
+}
+
+//function to uopdate score and level
+
+function updates(){
+document.getElementById("score").innerHTML = gscore;
+document.getElementById("level").innerHTML = glevel;
+
+}
+
+//function when click on target then after 150(pause time so see exploding target) reset target
+        function changer() {
+            playsound();
+            ghits +=1;
+            gscore +=1;
+            updates();
+            pathtotarget.src = "red2.png";
+            setTimeout("reseter()", 150);
+            if(ghits>=10){
+            passscreen();
+            }
+
+
+        };
+
+        function missed(){
+            playsound();
+            // alert("missed");
+            endgame("MISSED");
+        }
+
+
+//reset target
+        function reseter() {
+        rnumber=Math.floor(Math.random()*(gamewidth-targetsize));
+        rnumber2=Math.floor(Math.random()*(gameheight-targetsize));
+
+//test jquery
+$("#targetarea").css("background-color","green");
+
+//set target to bottom
+            pathtotarget.style.left = "450px";
+            pathtotarget.style.top = "400px";
+
+    $('#target').animate({
+        top: rnumber2,
+        left: rnumber
+    }, 100);
+
+// $("#target").animate({width:70},"slow");
+
+            // pathtotarget.style.left = (rnumber + "px");
+            // pathtotarget.style.top = (rnumber2 +"px");
+
+            
+            if(targetsize>=30){
+
+            targetsize = targetsize - 5;
+            }
+            pathtotarget.style.height = (targetsize + "px");
+            pathtotarget.style.width = (targetsize +"px");
+
+            pathtotarget.src = "red1.png";
+
+
+        };
+
+
+function clearscreens(){
+updates();
+document.getElementById("passscreen").style.left = ("-9990px");
+document.getElementById("endscreen").style.left = ("-9990px");
+document.getElementById("startscreen").style.left = ("-9990px");
+document.getElementById("titlescreen").style.left = ("-9990px");
+}
+
+
+
+</script>
+
+
+</body>
+
+</html>
